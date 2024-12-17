@@ -26,6 +26,12 @@ p{
     animation: neon2 1.5s ease-in-out infinite alternate;
 }
 
+#output {
+  font-size: 10px; /* Adjust this value as needed */
+  color: white;    /* Optional: Set text color */
+  margin-top: 5px; /* Optional: Add spacing above */
+}
+
 #loader-wrapper{
     position: fixed;
         top: 120px;

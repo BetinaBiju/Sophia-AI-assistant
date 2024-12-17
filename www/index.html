@@ -25,19 +25,21 @@
                 <div class="col-md-10">
                     <div id="loader-wrapper">
                         <div id="loader">
-                            <div id="loader1">
-                            </div>
+                            <div id="loader1"></div>
                         </div>
                         <p>SOPHIA</p>
                     </div>
                     <h5 class="text-light text text-center">Ask me anything</h5>
-                    <!-- /****************************Input Box******************************/ -->
 
+                    <!-- /****************************Input Box******************************/ -->
                     <div class="col-md-12 mt-4 pt-4">
                         <div class="text-center">
                             <div id="textInput" class="d-flex">
-                                <input type="text" class="input-field" name="chatbox" id="chatbox"
-                                    placeholder="type here ... ">
+
+                                <!-- Original input and buttons -->
+                                <input type="text" class="input-field" name="chatbox" id="chatbox" placeholder="type here ... ">
+                                <button onclick="submitText()">Submit</button>
+                                <p id="output"></p>
                                 <button id="MicBtn" class="glow-on-hover"><i class="bi bi-mic"></i></button>
                                 <button id="ChatBtn" class="glow-on-hover" data-bs-toggle="offcanvas"
                                     data-bs-target="#offcanvasScrolling" aria-controls="offcanvasScrolling"><i
@@ -69,13 +71,12 @@
         </section>
     </div>
 
-    
     <!-- Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
         crossorigin="anonymous"></script>
 
-    <!--Jquery  -->
+    <!--Jquery -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.4/jquery.min.js"></script>
     <script src="main.js"></script>
 
@@ -88,5 +89,86 @@
     <!-- Siri wave link -->
     <script src="https://unpkg.com/siriwave/dist/siriwave.umd.min.js"></script>
     <script src="./controller.js"></script>
+
+    <!-- Custom JS -->
+    <script>
+        // Submit text query
+        function submitText() {
+            var userQuery = document.getElementById('chatbox').value;
+
+            try {
+                eel.processTextInput(userQuery).then(function(response) {
+                    // Display the response in the output element
+                    document.getElementById('output').innerText = "Response: " + response;
+                });
+            } catch (error) {
+                console.error("Eel call failed:", error);
+                document.getElementById('output').innerText = "Error communicating with backend!";
+            }
+
+            // Clear input field
+            document.getElementById('chatbox').value = "";
+        }
+
+        $(document).ready(function () {
+            // Initialize Textillate animations for the header text
+            $('.text').textillate({
+                loop: true,
+                sync: true,
+                in: {
+                    effect: "bounceIn",
+                },
+                out: {
+                    effect: "bounceOut",
+                },
+            });
+
+            // Initialize SiriWave
+            var siriWave = new SiriWave({
+                container: document.getElementById("siri-container"),
+                width: 800,
+                height: 200,
+                style: "ios9",
+                amplitude: "1",
+                speed: "0.30",
+                autostart: true
+            });
+
+            $('.siri-message').textillate({
+                loop: true,
+                sync: true,
+                in: {
+                    effect: "fadeInUp",
+                    sync: true,
+                },
+                out: {
+                    effect: "fadeOutUp",
+                    sync: true,
+                },
+            });
+
+            // Mic button click event to start listening for voice commands
+            $("#MicBtn").click(function () {
+                $("#Oval").attr("hidden", true);
+                $("#SiriWave").attr("hidden", false);
+                eel.playClickSound();
+                eel.allCommands();  // Calls the Python backend to process the command
+            });
+
+            // Handle user text input submission
+            $("#ChatBtn").click(function () {
+                var query = $("#chatbox").val().trim();
+                if (query !== "") {
+                    eel.processTextInput(query);  // Sends the text input to Python backend
+                    $("#chatbox").val("");  // Clear the input field after submission
+                }
+            });
+
+            // Handle text input clearing
+            $("#SettingsBtn").click(function () {
+                $("#chatbox").val("");  // Clear the input field
+            });
+        });
+    </script>
 </body>
 </html>
